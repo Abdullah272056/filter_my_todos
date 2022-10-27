@@ -1,4 +1,4 @@
-package com.example.filter_my_todos;
+package com.example.filter_my_todos.Model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 public class UserModelClass {

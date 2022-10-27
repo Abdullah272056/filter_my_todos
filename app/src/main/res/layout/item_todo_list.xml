@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/parentLayoutForUserDetails"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/white"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="vertical">
+        <TextView
+            android:id="@+id/idTextViewId"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textSize="15sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/userIDTextViewId"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textSize="15sp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/titleTextViewId"
+
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:textSize="15sp"
+            android:textStyle="bold" />
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+
+            <CheckBox
+                android:id="@+id/checkBoxId"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Conpleted"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+        <LinearLayout
+            android:layout_marginTop="10dp"
+            android:background="#716C78"
+            android:layout_width="match_parent"
+            android:layout_height="1dp"/>
+
+
+
+
+
+    </LinearLayout>
+
+
+</LinearLayout>

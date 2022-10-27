@@ -1,5 +1,6 @@
-package com.example.filter_my_todos;
+package com.example.filter_my_todos.view;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -7,48 +8,66 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+
+import com.example.filter_my_todos.Model.TodoListModelClass;
+import com.example.filter_my_todos.Model.UserModelClass;
+import com.example.filter_my_todos.R;
+import com.example.filter_my_todos.ViewAdapter.SpinAdapter;
+import com.example.filter_my_todos.ViewAdapter.TodoRecyclerAdapter;
 import com.example.filter_my_todos.network.ApiClient;
 import com.example.filter_my_todos.network.ApiInterface;
 
-import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class MainActivity extends AppCompatActivity {
+
     private List<TodoListModelClass> todoListData;
+    private List<TodoListModelClass> todoFilterListData;
     private List<UserModelClass> userListData;
-    private RecyclerView orderRecyclerView;
-    private Order_RecyclerAdapter orderAdapter;
+    private RecyclerView todoRecyclerView;
+    private TodoRecyclerAdapter todoAdapter;
+
+    Spinner spinner_user;
+
+    private SpinAdapter adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-      //  getUserData();
-      //  getTodoData();
+        spinner_user=findViewById(R.id.spinnerUserId);
+        getUserData();
 
         recyclerViewInit();
         getTodoData();
     }
 
+    //init recyclerview and set adapter
     private void recyclerViewInit() {
-        orderRecyclerView = findViewById(R.id.recyclerViewId);
+        todoRecyclerView = findViewById(R.id.recyclerViewId);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        orderRecyclerView.setLayoutManager(layoutManager);
+        todoRecyclerView.setLayoutManager(layoutManager);
 //      orderRecyclerView.setHasFixedSize(true);
-        orderAdapter = new Order_RecyclerAdapter(todoListData, this);
-        orderRecyclerView.setAdapter(orderAdapter);
+        todoAdapter = new TodoRecyclerAdapter(todoListData, this);
+        todoRecyclerView.setAdapter(todoAdapter);
     }
 
 
-    // get user Data
+    // get all user Data from server
     private void getUserData() {
 
         if (checkConnection()) {
@@ -58,9 +77,31 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<List<UserModelClass>> call, Response<List<UserModelClass>> response) {
                     if (response.code()==200){
-                        Toast.makeText(MainActivity.this, "success", Toast.LENGTH_SHORT).show();
                          userListData = response.body();
-                         Toast.makeText(MainActivity.this,String.valueOf(userListData.size()) , Toast.LENGTH_SHORT).show();
+
+
+                         //spinner adapter init and set with spinner
+                        adapter = new SpinAdapter(MainActivity.this,
+                                R.layout.spinner_item,
+                                userListData);
+                        spinner_user.setAdapter(adapter); // Set the custom adapter to the spinner
+                        // You can create an anonymous listener to handle the event when is selected an spinner item
+                        spinner_user.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+
+                            @RequiresApi(api = Build.VERSION_CODES.N)
+                            @Override
+                            public void onItemSelected(AdapterView<?> adapterView, View view,
+                                                       int position, long id) {
+
+                                UserModelClass user = adapter.getItem(position);
+
+                                dataFilter(String.valueOf(user.getId()));
+
+                            }
+                            @Override
+                            public void onNothingSelected(AdapterView<?> adapter) {  }
+                        });
+
                     }
                     else {
                         Toast.makeText(MainActivity.this, "Please try again!", Toast.LENGTH_SHORT).show();
@@ -79,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // get todo Data
+    // get todo Data from server
     private void getTodoData() {
 
         if (checkConnection()) {
@@ -89,11 +130,14 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onResponse(Call<List<TodoListModelClass>> call, Response<List<TodoListModelClass>> response) {
                     if (response.code()==200){
-                        Toast.makeText(MainActivity.this, "success", Toast.LENGTH_SHORT).show();
                         todoListData = response.body();
-                        orderAdapter = new Order_RecyclerAdapter(todoListData, MainActivity.this);
-                        orderRecyclerView.setAdapter(orderAdapter);
-                        Toast.makeText(MainActivity.this,String.valueOf(todoListData.size()) , Toast.LENGTH_SHORT).show();
+
+
+                        //copy all data
+                        todoFilterListData=todoListData;
+                        //todo adapter init and set with recycler view
+                        todoAdapter = new TodoRecyclerAdapter(todoFilterListData, MainActivity.this);
+                        todoRecyclerView.setAdapter(todoAdapter);
                     }
                     else {
                         Toast.makeText(MainActivity.this, "Please try again!", Toast.LENGTH_SHORT).show();
@@ -126,6 +170,25 @@ public class MainActivity extends AppCompatActivity {
         } else {
             return true;
         }
+    }
+
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    void dataFilter(String id){
+
+        Predicate<TodoListModelClass> byUserId = todoListModelClass -> Objects.equals(todoListModelClass.getUserId(), id);
+
+
+        todoFilterListData = todoListData.stream().filter(byUserId)
+                .collect(Collectors.toList());
+
+        todoAdapter = new TodoRecyclerAdapter(todoFilterListData, MainActivity.this);
+        todoRecyclerView.setAdapter(todoAdapter);
+        //Toast.makeText(MainActivity.this,String.valueOf(todoFilterListData.size()) , Toast.LENGTH_SHORT).show();
+
+
+
+
     }
 
 

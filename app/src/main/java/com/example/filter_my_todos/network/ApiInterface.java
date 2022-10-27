@@ -1,7 +1,8 @@
 package com.example.filter_my_todos.network;
 
-import com.example.filter_my_todos.TodoListModelClass;
-import com.example.filter_my_todos.UserModelClass;
+import com.example.filter_my_todos.Model.TodoListModelClass;
+import com.example.filter_my_todos.Model.UserModelClass;
+
 import java.util.List;
 import retrofit2.http.GET;
 import retrofit2.Call;
